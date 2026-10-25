@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#2874f0">
+<title>Verity - decision audit for your AI agent</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="flipkart.css">
+<style>
+.conn{font-size:12px;color:var(--mute)}
+.conn:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warn);margin-right:5px}
+.conn.on:before{background:var(--ok)}
+code{font-size:12px;background:var(--soft);padding:1px 4px;border-radius:3px;word-break:break-all}
+@media print{nav,.hr,.btns,.filt,.search,#toast{display:none!important}.app{border:0}}
+</style>
+</head>
+<body>
+<main class="app">
+  <header>
+    <div><div class="logo">Verity</div><div class="sub">Your agent decides. Verity shows why.</div><span id="conn" class="conn">Offline</span></div>
+    <div class="hr">
+      <button id="theme" data-a="theme" class="ic" aria-label="Toggle dark mode">🌓</button>
+      <button id="bell" data-a="xbell" class="ic" aria-label="Notifications">🔔</button>
+      <button data-a="xreset" class="ic" aria-label="Reset everything and start again" title="Reset">↺</button>
+      <button id="pause" data-a="pause" class="pill">Agent active</button>
+    </div>
+  </header>
+  <section id="view"></section>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="welcome" class="modal" hidden></div>
+  <nav aria-label="Main">
+    <button data-a="tab" data-v="feed" class="on"><i>▤</i><span>Decisions</span></button>
+    <button data-a="tab" data-v="appr"><i>✓</i><span>Approvals</span></button>
+    <button data-a="tab" data-v="call"><i>⚖</i><span>Your Call</span></button>
+    <button data-a="tab" data-v="prefs"><i>⚙</i><span>Rules</span></button>
+    <button data-a="tab" data-v="stats"><i>◔</i><span>Insights</span></button>
+    <button data-a="tab" data-v="x"><i>✦</i><span>Explore</span></button>
+  </nav>
+</main>
+<script src="core.js"></script>
+<script src="app.js"></script>
+<script src="extras.js"></script>
+<script src="extras2.js"></script>
+<script src="extras3.js"></script>
+<script src="datalab.js"></script>
+<script src="extras4.js"></script>
+<script src="extras5.js"></script>
+<script src="extras6.js"></script>
+</body>
+</html>
