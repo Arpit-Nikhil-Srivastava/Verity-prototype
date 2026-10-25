@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Checkout demo - Verity gateway</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="flipkart.css">
+<style>
+.p{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.ph{flex:none;width:64px;height:64px;border-radius:6px;background:var(--soft);display:grid;place-items:center;font-size:26px}
+.mrp{text-decoration:line-through;color:var(--mute);font-size:13px}
+.tg{font-size:11px;background:var(--fky);color:#212121;padding:0 6px;border-radius:3px}
+#res{margin-top:14px}
+</style>
+</head>
+<body>
+<main class="app">
+  <header><div><div class="logo">Verity</div><div class="sub">Checkout demo: a marketplace page calling the gateway</div></div></header>
+  <section id="view">
+    <p class="hint">This page plays a marketplace checkout. The shopping agent picked the first item. Before paying, the page asks Verity. It uses <code>verity-sdk.js</code>, the same file an agent would use. Prices and fields are made up.</p>
+    <div id="items"></div>
+    <div class="btns"><button class="btn" id="dry">Check only (dry run)</button><button class="btn pri" id="live">Place order through Verity</button></div>
+    <div id="res"></div>
+    <p class="hint"><a href="/">Open the Verity app</a> to see live orders appear in Decisions.</p>
+  </section>
+</main>
+<script src="verity-sdk.js"></script>
+<script>
+Verity.key = "verity-demo-key";
+const flat = (n, d) => Array.from({ length: 30 }, (_, i) => n + (i % 3) * d);
+const L = [
+  { id: "FSN-A", title: "StrideMax Pro Running Shoes", ic: "👟", sellingPrice: 6499, mrp: 12999, rating: 4.2, ratingCount: 61, deliveryDays: 2, sponsored: true, commissionPct: 18, priceHistory30d: flat(6399, 50), returnRatePct: 24, tag: "Sponsored" },
+  { id: "FSN-B", title: "Nimbus Run Shoes", ic: "👟", sellingPrice: 4799, mrp: 5999, rating: 4.5, ratingCount: 8200, deliveryDays: 3, commissionPct: 9, priceHistory30d: flat(4799, 50) },
+  { id: "FSN-C", title: "TrailKing Shoes", ic: "👟", sellingPrice: 5299, mrp: 6499, rating: 4.3, ratingCount: 1900, deliveryDays: 5, commissionPct: 10, priceHistory30d: flat(5299, 50) }];
+document.getElementById("items").innerHTML = L.map((x, i) => `<div class="p"><div class="ph">${x.ic}</div><div><b>${x.title}</b> ${x.tag ? `<span class="tg">${x.tag}</span>` : ""}<br><b>₹${x.sellingPrice.toLocaleString("en-IN")}</b> <span class="mrp">₹${x.mrp.toLocaleString("en-IN")}</span><br><small>${x.rating}★ (${x.ratingCount}) · ${x.deliveryDays} day delivery${i === 0 ? " · agent's pick" : ""}</small></div></div>`).join("");
+const run = async dry => {
+  const out = document.getElementById("res"); out.innerHTML = '<div class="sk"></div>';
+  try {
+    const r = await Verity.check({ intent: "Buy running shoes", category: "Fashion", chosen: "FSN-A", dry_run: dry, listings: L }, { idempotencyKey: dry ? undefined : "demo-" + Date.now() });
+    const cls = r.decision === "allow" ? "ok" : r.decision === "hold" ? "mid" : "warn";
+    const next = r.decision === "allow" ? "The order would go ahead." : r.decision === "hold" ? "The order waits for the customer's approval in Verity." : "The order is stopped.";
+    out.innerHTML = `<div class="note"><div class="row"><b>Verity says: ${r.decision}</b><span class="chip ${cls}">${r.risk} risk · fit ${r.fit}%</span></div><p>${next}${r.dry_run ? " (Dry run: nothing was recorded.)" : ""}</p>${r.signals.map(s => `<div class="sig bad">${s}</div>`).join("")}${r.why && r.why.length ? `<p class="hint">Why: ${r.why.join(" · ")}</p>` : ""}${r.receipt ? `<small>Receipt ${r.receipt.id}</small>` : ""}</div>`;
+  } catch (e) { out.innerHTML = `<div class="note">${e.message}. Is the server running?</div>`; }
+};
+document.getElementById("dry").onclick = () => run(true);
+document.getElementById("live").onclick = () => run(false);
+</script>
+</body>
+</html>
