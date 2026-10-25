@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:,"><title>Verify a Verity receipt</title>
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="flipkart.css">
+</head>
+<body>
+<main class="app">
+  <header><div><div class="logo">Verity</div><div class="sub">Check that a receipt is genuine and unchanged</div></div></header>
+  <section id="view">
+    <p class="hint">Anyone with a receipt ID can check it here. No account or key needed. The page shows whether the signature matches and whether the audit chain is intact. It does not show what was bought.</p>
+    <input id="i" class="search" placeholder="Receipt ID, for example VR-00012" autocomplete="off">
+    <div class="btns" style="margin-top:8px"><button class="btn pri" id="go">Verify</button></div>
+    <div id="out" role="status" aria-live="polite"></div>
+  </section>
+</main>
+<script>
+const $ = s => document.querySelector(s), esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+async function run() {
+  const id = $("#i").value.trim().toUpperCase(); if (!id) return; $("#out").innerHTML = '<div class="sk"></div>';
+  try {
+    const r = await fetch("/v1/receipts/verify?id=" + encodeURIComponent(id)), j = await r.json();
+    if (!r.ok) { $("#out").innerHTML = `<div class="note"><b>Not found.</b> ${esc(j.error || "No such receipt")}</div>`; return; }
+    const ok = j.valid && j.chain_ok, verdict = { done: "Allowed", pending: "Held", blocked: "Stopped" }[j.verdict] || j.verdict;
+    $("#out").innerHTML = `<div class="rcpt"><span class="stamp ${ok ? "ok" : "no"}">${ok ? "Genuine" : "Not valid"}</span><div class="id">Receipt ${esc(j.id)}</div>
+      <p><b>Signature:</b> ${j.valid ? "matches" : "does not match"}<br><b>Audit chain:</b> ${j.chain_ok ? "intact" : "broken"}<br><b>Verdict at check time:</b> ${esc(verdict)}<br><b>Checked:</b> ${j.at ? new Date(j.at).toLocaleString("en-IN") : "unknown"}</p>
+      <div class="id">${esc(j.hash)}</div></div>`;
+  } catch (e) { $("#out").innerHTML = '<div class="note">Could not reach the Verity server.</div>'; }
+}
+$("#go").onclick = run; $("#i").addEventListener("keydown", e => e.key === "Enter" && run());
+const q = new URLSearchParams(location.search).get("id"); if (q) { $("#i").value = q; run(); }
+</script>
+</body>
+</html>

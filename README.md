@@ -1,4 +1,4 @@
-# Verity-prototype
+# Verity
 
 **Your agent decides. Verity shows why.**
 

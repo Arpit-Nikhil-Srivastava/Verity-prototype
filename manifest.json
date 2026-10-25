@@ -1,0 +1,2 @@
+{ "name": "Verity", "short_name": "Verity", "description": "Your agent decides. Verity shows why.", "start_url": "/", "display": "standalone", "background_color": "#f1f3f6", "theme_color": "#2874f0",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }] }
